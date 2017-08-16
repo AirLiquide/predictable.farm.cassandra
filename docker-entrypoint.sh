@@ -17,11 +17,15 @@ set -e
 	    sleep 10
 	  done
 	} 2>/dev/null
-	echo "Initializing Cassandra database"
-	cqlsh -e "CREATE KEYSPACE PredictableFarm  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }"
-	cqlsh -k predictablefarm -e"CREATE TABLE sensorlog (device_id varchar,sensor_type varchar,sensor_value varchar, created_at timestamp, PRIMARY KEY ((device_id, sensor_type),  created_at))"
-	cqlsh -k predictablefarm -e "CREATE TABLE relaystate (device_id varchar,sensor_type varchar,sensor_value int,last_update timestamp, PRIMARY KEY ((device_id, sensor_type)))"
-	echo "Cassandra database initialized"
+	if [ ! -d "/var/lib/cassandra/data/predictablefarm" ]; then
+		echo "Initializing Cassandra database"
+		cqlsh -e "CREATE KEYSPACE PredictableFarm  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }"
+		cqlsh -k predictablefarm -e"CREATE TABLE sensorlog (device_id varchar,sensor_type varchar,sensor_value varchar, created_at timestamp, PRIMARY KEY ((device_id, sensor_type),  created_at))"
+		cqlsh -k predictablefarm -e "CREATE TABLE relaystate (device_id varchar,sensor_type varchar,sensor_value int,last_update timestamp, PRIMARY KEY ((device_id, sensor_type)))"
+		echo "Cassandra database initialized"
+  	# Control will enter here if $DIRECTORY doesn't exist.
+	fi
+
 	rm -f ${LOCKFILE}
 }&
 # first arg is `-f` or `--some-option`
