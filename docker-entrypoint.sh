@@ -22,8 +22,18 @@ set -e
 		cqlsh -e "CREATE KEYSPACE PredictableFarm  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }"
 		cqlsh -k predictablefarm -e"CREATE TABLE sensorlog (device_id varchar,sensor_type varchar,sensor_value varchar, created_at timestamp, PRIMARY KEY ((device_id, sensor_type),  created_at))"
 		cqlsh -k predictablefarm -e "CREATE TABLE relaystate (device_id varchar,sensor_type varchar,sensor_value int,last_update timestamp, PRIMARY KEY ((device_id, sensor_type)))"
+		cqlsh -k predictablefarm -e "CREATE TABLE zone (id_zone int PRIMARY KEY, name varchar,location varchar,location_gps varchar, dashboards text)"
+		cqlsh -k predictablefarm -e "CREATE TABLE probe (id_probe int PRIMARY KEY,id_zone int,name varchar,uuid varchar)"
+		cqlsh -k predictablefarm -e "CREATE TABLE reading (id_sensor int PRIMARY KEY,value varchar,time timestamp)"
+		cqlsh -k predictablefarm -e "CREATE TABLE sensor (id_sensor int PRIMARY KEY,id_probe int,type varchar,last_value varchar,last_time timestamp,sort_order int)"
 		echo "Cassandra database initialized"
   	# Control will enter here if $DIRECTORY doesn't exist.
+		cqlsh -k predictablefarm -e "INSERT INTO probe (id_probe, id_zone, name, uuid) VALUES (0,0,'Device 1','1')"
+		cqlsh -k predictablefarm -e "INSERT INTO probe (id_probe, id_zone, name, uuid) VALUES (1,0,'Device 2','2')"
+		cqlsh -k predictablefarm -e "INSERT INTO zone (id_zone, name, location, location_gps, dashboards) VALUES (0,'Zone par defaut',NULL,NULL,'[]')"
+		cqlsh -k predictablefarm -e "INSERT INTO sensor (id_sensor, id_probe, type, last_value, last_time, sort_order) VALUES (0, 0, 'light', '42', toTimestamp(now()),0)"
+		#cqlsh:predictablefarm> INSERT INTO probe (id_probe, id_zone, name, uuid) VALUES (0,0,'Device 1','1') ;
+		#cqlsh:predictablefarm> INSERT INTO probe (id_probe, id_zone, name, uuid) VALUES (1,0,'Device 2','2') ;
 	fi
 
 	rm -f ${LOCKFILE}
@@ -58,7 +68,7 @@ if [ "$1" = 'cassandra' ]; then
 		: ${CASSANDRA_SEEDS:="cassandra"}
 	fi
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
-	
+
 	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
 
 	for yaml in \
