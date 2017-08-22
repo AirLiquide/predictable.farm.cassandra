@@ -3,6 +3,7 @@ set -e
 
 {
 	LOCKFILE=/var/tmp/lock.txt
+	#if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
 	if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
     	echo "already running"
     	exit
@@ -17,6 +18,8 @@ set -e
 	    sleep 10
 	  done
 	} 2>/dev/null
+
+
 	if [ ! -d "/var/lib/cassandra/data/predictablefarm" ]; then
 		echo "Initializing Cassandra database"
 		cqlsh -e "CREATE KEYSPACE PredictableFarm  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }"
@@ -46,7 +49,7 @@ set -e
 
 
 
-		cqlsh -k predictablefarm -e 'INSERT INTO zone (id_zone, name, location, location_gps, dashboards) VALUES (0,"Zone par defaut",NULL,NULL,\'[{"name":"Heat / Moisture2","blocks":[{"type":"sensors","name":"Heat / Moisture","sensors":[{"id_sensor":"8","id_probe":"2","type":"humidity","last_value":"42.7","last_time":"2017-02-02 15:28:13","sort_order":5,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"Humidite","style":"percent","class":"air","color":"red","sensor_index":0},{"id_sensor":"10","id_probe":"2","type":"temperature","last_value":"21.1","last_time":"2017-02-02 15:28:06","sort_order":4,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"Temperature","style":"celcius-degrees","class":"air","color":"red","sensor_index":1},{"id_sensor":"4","id_probe":"2","type":"sunuvlight","last_value":"5","last_time":"2017-02-02 15:28:20","sort_order":1,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"UV (Ultraviolet)","style":"","class":"light","color":"red","sensor_index":2}],"displayChart":true,"displaySensor":true,"id_zone":"0","dashboard_index":0,"block_index":0,"sensor_ids":"8,10,4"}]},{"name":"Pressure / Light","blocks":[{"type":"sensors","name":"Pressure / Light","sensors":[{"id_sensor":"9","id_probe":"2","type":"pressure","last_value":"99657","last_time":"2017-02-02 15:28:20","sort_order":6,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"Pression Atmospherique","style":"pascal-to-hectopascal","class":"air","color":"red","sensor_index":0},{"id_sensor":"5","id_probe":"2","type":"lux","last_value":"438","last_time":"2017-02-02 15:28:14","sort_order":2,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"Luminosite","style":"lux","class":"light","color":"red","sensor_index":1},{"id_sensor":"10","id_probe":"2","type":"temperature","last_value":"21.1","last_time":"2017-02-02 15:28:06","sort_order":4,"probe_uuid":"ebf22bd24ec34ac2bc2618e21f71f753","probe_name":"BT proto","id_zone":"0","label":"Temperature","style":"celcius-degrees","class":"air","color":"red","sensor_index":2}],"displayChart":true,"displaySensor":true,"id_zone":"0","dashboard_index":1,"block_index":0,"sensor_ids":"9,5,10"}]}]\')'
+		cqlsh -k predictablefarm -e "INSERT INTO zone (id_zone, name, location, location_gps, dashboards) VALUES (0, 'Zone par defaut',NULL,NULL,\$\$[{'name':'Heat / Moisture','blocks':[{'type':'sensors','name':'Heat / Moisture','sensors':[{'id_sensor':'8','id_probe':'2','type':'humidity','last_value':'42.7','last_time':'2017-02-02 15:28:13','sort_order':5,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'Humidite','style':'percent','class':'air','color':'red','sensor_index':0},{'id_sensor':'10','id_probe':'2','type':'temperature','last_value':'21.1','last_time':'2017-02-02 15:28:06','sort_order':4,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'Temperature','style':'celcius-degrees','class':'air','color':'red','sensor_index':1},{'id_sensor':'4','id_probe':'2','type':'sunuvlight','last_value':'5','last_time':'2017-02-02 15:28:20','sort_order':1,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'UV (Ultraviolet)','style':'','class':'light','color':'red','sensor_index':2}],'displayChart':true,'displaySensor':true,'id_zone':'0','dashboard_index':0,'block_index':0,'sensor_ids':'8,10,4'}]},{'name':'Pressure / Light','blocks':[{'type':'sensors','name':'Pressure / Light','sensors':[{'id_sensor':'9','id_probe':'2','type':'pressure','last_value':'99657','last_time':'2017-02-02 15:28:20','sort_order':6,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'Pression Atmospherique','style':'pascal-to-hectopascal','class':'air','color':'red','sensor_index':0},{'id_sensor':'5','id_probe':'2','type':'lux','last_value':'438','last_time':'2017-02-02 15:28:14','sort_order':2,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'Luminosite','style':'lux','class':'light','color':'red','sensor_index':1},{'id_sensor':'10','id_probe':'2','type':'temperature','last_value':'21.1','last_time':'2017-02-02 15:28:06','sort_order':4,'probe_uuid':'ebf22bd24ec34ac2bc2618e21f71f753','probe_name':'BT proto','id_zone':'0','label':'Temperature','style':'celcius-degrees','class':'air','color':'red','sensor_index':2}],'displayChart':true,'displaySensor':true,'id_zone':'0','dashboard_index':1,'block_index':0,'sensor_ids':'9,5,10'}]}]\$\$)"
 
 		cqlsh -k predictablefarm -e "INSERT INTO sensor (id_sensor, id_probe, type, last_value, last_time, sort_order) VALUES (11, 0, 'light', '42', toTimestamp(now()),0)"
 
@@ -58,6 +61,8 @@ set -e
 
 	rm -f ${LOCKFILE}
 }&
+
+
 # first arg is `-f` or `--some-option`
 if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"
