@@ -53,7 +53,7 @@ set -e
 
 		echo "Cassandra database initialized :)"
 
-  	# Control will enter here if $DIRECTORY doesn't exist.
+  	# Control will enter here if $DIRECTORY doesn't  exist.
 	fi
 
 	rm -f ${LOCKFILE}
