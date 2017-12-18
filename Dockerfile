@@ -49,8 +49,8 @@ ENV CASSANDRA_VERSION 3.11.0
 
 RUN apt-get update \
 	&& apt-get install -y \
-		cassandra="$CASSANDRA_VERSION" \
-		cassandra-tools="$CASSANDRA_VERSION" \
+		cassandra \
+		cassandra-tools \
 	&& rm -rf /var/lib/apt/lists/*
 
 # https://issues.apache.org/jira/browse/CASSANDRA-11661
